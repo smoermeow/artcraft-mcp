@@ -886,7 +886,7 @@ def _reference_mime_type(data: bytes) -> Optional[str]:
 
 def _load_reference_bytes(source: str, max_bytes: int) -> tuple[bytes, str, str]:
     parsed = urllib.parse.urlparse(source)
-    if parsed.scheme:
+    if len(parsed.scheme) > 1:  # single letter = Windows drive letter
         if parsed.scheme.lower() != "https":
             raise ValueError("Reference image URLs must use HTTPS.")
         request = urllib.request.Request(source, headers={"User-Agent": USER_AGENT})
@@ -976,7 +976,7 @@ def _reference_media_mime_type(data: bytes, filename: str, media_kind: str) -> O
 
 def _load_reference_media_bytes(source: str, max_bytes: int, media_kind: str) -> tuple[bytes, str, str]:
     parsed = urllib.parse.urlparse(source)
-    if parsed.scheme:
+    if len(parsed.scheme) > 1:  # single letter = Windows drive letter
         if parsed.scheme.lower() != "https":
             raise ValueError(f"Reference {media_kind} URLs must use HTTPS.")
         request = urllib.request.Request(source, headers={"User-Agent": USER_AGENT})
@@ -1103,7 +1103,7 @@ def _upload_reference_media(
         "ok": True,
         "media_token": media_token,
         "uploaded": True,
-        "source_type": "https_url" if urllib.parse.urlparse(source).scheme else "local_file",
+        "source_type": "https_url" if len(urllib.parse.urlparse(source).scheme) > 1 else "local_file",
         "media_kind": media_kind,
     }
     if is_intermediate_system_file is not None:
@@ -1168,7 +1168,7 @@ def artcraft_upload_reference_image(
             "ArtCraft did not return a media token for the reference image.",
             "Retry the upload or reuse an existing ArtCraft m_... media token.",
         )
-    source_type = "https_url" if urllib.parse.urlparse(source).scheme else "local_file"
+    source_type = "https_url" if len(urllib.parse.urlparse(source).scheme) > 1 else "local_file"
     return {
         "ok": True,
         "media_token": media_token,
